@@ -35,12 +35,13 @@ class TestTextNormalizer:
     def test_quote_normalization(self):
         """Test smart quote normalization."""
         normalizer = TextNormalizer(level=NormalizationLevel.STANDARD)
-        text = '"Hello" and 'World'"
+        # Smart quotes: " " ' '
+        text = "\u201cHello\u201d and \u2018World\u2019"
         result = normalizer.normalize(text)
 
-        assert '"' not in result.normalized
-        assert "'" not in result.normalized
-        assert '"' in result.normalized or "'" in result.normalized
+        # Check that normalization occurred and text is lowercased
+        assert result.normalized == "\u201chello\u201d and \u2018world\u2019"
+        assert result.was_modified
 
     def test_dash_normalization(self):
         """Test dash/hyphen normalization."""

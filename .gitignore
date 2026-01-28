@@ -85,10 +85,15 @@ logs/
 # *.pth
 # *.onnx
 
-# Generated reports (optional - uncomment if you don't want to track output)
-# *.html
-# *.json
-# diff_report_*
+# Generated reports and test outputs
+diff_report_*.html
+diff_report_*.json
+debug_test.json
+diff_all.json
+diff_llm_test.json
+diff_output.json
+final_result.json
+final_test.json
 
 # Test fixtures with real data (keep directory structure)
 tests/fixtures/sample_policies/*.pdf

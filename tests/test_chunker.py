@@ -47,7 +47,7 @@ class TestDocumentChunker:
 
     def test_paragraph_chunking(self, sample_document):
         """Test chunking by paragraphs."""
-        chunker = DocumentChunker(chunk_type=ChunkType.PARAGRAPH)
+        chunker = DocumentChunker(chunk_type=ChunkType.PARAGRAPH, min_chunk_size=10)
         chunks = chunker.chunk_document(sample_document)
 
         assert len(chunks) > 0
@@ -110,7 +110,7 @@ class TestChunkConvenienceFunction:
 
     def test_chunk_document_function(self, sample_document):
         """Test the convenience function."""
-        chunks = chunk_document(sample_document, chunk_type=ChunkType.PARAGRAPH)
+        chunks = chunk_document(sample_document, chunk_type=ChunkType.PARAGRAPH, min_chunk_size=10)
 
         assert len(chunks) > 0
         assert all(isinstance(c, Chunk) for c in chunks)

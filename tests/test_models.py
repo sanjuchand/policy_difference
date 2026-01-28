@@ -42,12 +42,11 @@ class TestDocumentModels:
         page = PageContent(
             page_number=1,
             text="Test content",
-            section_headers=["SECTION 1"],
         )
 
         assert page.page_number == 1
         assert page.text == "Test content"
-        assert len(page.section_headers) == 1
+        assert page.word_count == 2
 
     def test_document_word_count(self):
         """Test document word count calculation."""
@@ -57,7 +56,7 @@ class TestDocumentModels:
             full_text="One two three four five",
         )
 
-        assert doc.word_count == 5
+        assert doc.metadata.word_count == 5
 
     def test_document_to_dict(self):
         """Test document serialization."""

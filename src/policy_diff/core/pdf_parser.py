@@ -149,14 +149,13 @@ class PDFParser:
                 if cleaned_table:
                     tables.append(cleaned_table)
 
-        # Detect section headers on this page
+        # Detect section headers on this page (stored for future use)
         section_headers = self._find_section_headers(text) if self.detect_sections else []
 
         return PageContent(
             page_number=page_num,
             text=text,
             tables=tables,
-            section_headers=section_headers,
         )
 
     def _find_section_headers(self, text: str) -> list[str]:

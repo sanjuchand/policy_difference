@@ -31,7 +31,7 @@ class LLMProvider(str, Enum):
 class OllamaModel(str, Enum):
     """Available Ollama models."""
 
-    LLAMA3_8B = "llama3:8b"
+    LLAMA3_8B = "llama3.1:8b"
     LLAMA3_70B = "llama3:70b"
     MISTRAL = "mistral"
     MIXTRAL = "mixtral"
@@ -299,7 +299,7 @@ class SemanticAnalyzer:
         llm_client: Optional[LLMClient] = None,
         embedding_engine=None,
         confidence_threshold: float = 0.7,
-        skip_llm_above_similarity: float = 0.95,
+        skip_llm_above_similarity: float = 0.98,
     ):
         """Initialize semantic analyzer.
 
