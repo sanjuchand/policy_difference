@@ -31,23 +31,37 @@ from policy_diff.models import (
     Significance,
     ChangeCategory,
 )
-from policy_diff.pii import (
-    PIIDetector,
-    PIITokenizer,
-    detect_pii,
-    tokenize_pii,
-)
-from policy_diff.ai import (
-    EmbeddingEngine,
-    LLMClient,
-    SemanticAnalyzer,
-)
 from policy_diff.output import (
     HTMLReportGenerator,
     JSONExporter,
     generate_html_report,
     export_to_json,
 )
+
+# Optional imports - only available if dependencies are installed
+try:
+    from policy_diff.pii import (
+        PIIDetector,
+        PIITokenizer,
+        detect_pii,
+        tokenize_pii,
+    )
+except ImportError:
+    PIIDetector = None
+    PIITokenizer = None
+    detect_pii = None
+    tokenize_pii = None
+
+try:
+    from policy_diff.ai import (
+        EmbeddingEngine,
+        LLMClient,
+        SemanticAnalyzer,
+    )
+except ImportError:
+    EmbeddingEngine = None
+    LLMClient = None
+    SemanticAnalyzer = None
 
 __all__ = [
     # Core
