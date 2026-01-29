@@ -14,10 +14,22 @@ from policy_diff.core import (
     TextDiffEngine,
     DiffConfig,
 )
-from policy_diff.pii import PIITokenizer, TokenizationStrategy
-from policy_diff.ai import EmbeddingEngine, LLMClient, SemanticAnalyzer
 from policy_diff.output import HTMLReportGenerator, JSONExporter
 from policy_diff.models.diff_result import DiffReport, Significance, ChangeType
+
+# Optional imports for AI features
+try:
+    from policy_diff.pii import PIITokenizer, TokenizationStrategy
+    PII_AVAILABLE = True
+except ImportError:
+    PII_AVAILABLE = False
+    st.warning("⚠️ PII protection not available (missing dependencies)")
+
+try:
+    from policy_diff.ai import EmbeddingEngine, LLMClient, SemanticAnalyzer
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
 
 
 # Page configuration
@@ -94,11 +106,14 @@ def render_sidebar() -> dict:
         st.header("⚙️ Configuration")
 
         st.subheader("Analysis Options")
-        use_llm = st.checkbox("Use LLM Analysis", value=True,
+        use_llm = st.checkbox("Use LLM Analysis", value=AI_AVAILABLE,
+                             disabled=not AI_AVAILABLE,
                              help="Enable AI-powered semantic analysis using Ollama")
-        use_embeddings = st.checkbox("Use Embeddings", value=True,
+        use_embeddings = st.checkbox("Use Embeddings", value=AI_AVAILABLE,
+                                     disabled=not AI_AVAILABLE,
                                      help="Use embeddings for semantic similarity")
-        protect_pii = st.checkbox("PII Protection", value=True,
+        protect_pii = st.checkbox("PII Protection", value=PII_AVAILABLE,
+                                  disabled=not PII_AVAILABLE,
                                   help="Detect and tokenize PII before LLM processing")
 
         st.subheader("Document Processing")
@@ -141,26 +156,28 @@ def check_system_status() -> dict:
     status = {}
 
     # Check embeddings
-    try:
-        from sentence_transformers import SentenceTransformer
-        status["Embeddings"] = True
-    except ImportError:
+    if AI_AVAILABLE:
+        try:
+            from sentence_transformers import SentenceTransformer
+            status["Embeddings"] = True
+        except ImportError:
+            status["Embeddings"] = False
+    else:
         status["Embeddings"] = False
 
     # Check Ollama
-    try:
-        import ollama
-        ollama.list()
-        status["LLM (Ollama)"] = True
-    except Exception:
+    if AI_AVAILABLE:
+        try:
+            import ollama
+            ollama.list()
+            status["LLM (Ollama)"] = True
+        except Exception:
+            status["LLM (Ollama)"] = False
+    else:
         status["LLM (Ollama)"] = False
 
     # Check PII detection
-    try:
-        from presidio_analyzer import AnalyzerEngine
-        status["PII Detection"] = True
-    except ImportError:
-        status["PII Detection"] = False
+    status["PII Detection"] = PII_AVAILABLE
 
     return status
 
@@ -233,7 +250,7 @@ def process_documents(file_a, file_b, config: dict) -> Optional[DiffReport]:
         chunks_b = chunker.chunk_document(doc_b)
 
         # PII protection
-        if config["protect_pii"]:
+        if config["protect_pii"] and PII_AVAILABLE:
             status_text.text("🔒 Protecting PII...")
             progress_bar.progress(35)
             tokenizer = PIITokenizer(strategy=TokenizationStrategy.PLACEHOLDER)
@@ -250,7 +267,7 @@ def process_documents(file_a, file_b, config: dict) -> Optional[DiffReport]:
         llm_client = None
         semantic_analyzer = None
 
-        if config["use_embeddings"]:
+        if AI_AVAILABLE and config["use_embeddings"]:
             status_text.text("🧠 Loading embedding model...")
             progress_bar.progress(45)
             try:
@@ -261,7 +278,7 @@ def process_documents(file_a, file_b, config: dict) -> Optional[DiffReport]:
             except Exception as e:
                 st.warning(f"⚠️ Could not load embeddings: {e}")
 
-        if config["use_llm"]:
+        if AI_AVAILABLE and config["use_llm"]:
             status_text.text("🤖 Initializing LLM...")
             progress_bar.progress(55)
             llm_client = LLMClient()
